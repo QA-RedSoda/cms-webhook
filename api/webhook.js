@@ -75,13 +75,13 @@ export default async function handler(req, res) {
           <li><strong>Created at: ${createdAt}</strong></li>
           <li><strong>Updated at: ${updatedAt}</strong></li>
           <li><strong>Published at: ${publishedAt}</strong></li>
-          <li>Media name: ${mediaName}</li>
+          <li><strong>Media name: ${mediaName}</strong></li>
           <li>Media URL: ${mediaUrl}</li>
           <li>Media created at: ${mediaCreatedAt}</li>
           <li>Media updated at: ${mediaUpdatedAt}</li>
           <li>Entry value/content: ${combinedContent}</li>
-          <li style="margin-top: 20px; list-style: none;">
-            <span style="font-size: 18px; font-weight: bold; display: block; margin-bottom: 10px;">Components:</span>
+          <li style="margin-top: 20px;">
+            <span style="font-size: 16px; display: block; margin-bottom: 10px;">Components:</span>
             <ul style="padding-left: 0;">
               ${formattedComponents || '<li>No components found</li>'}
             </ul>
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
     await resend.emails.send({
       from: 'Resend <onboarding@resend.dev>',
       to: 'soni.redsoda@gmail.com', // <-- MUST BE YOUR EXACT RESEND ACCOUNT REGISTRATION EMAIL
-      subject: `Prod CMS Data Update (${event}, ${model})`,
+      subject: `Prod CMS Data Update (${event}, ${model}:${entryId})`,
       html: emailHtml,
     });
 
