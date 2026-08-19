@@ -88,8 +88,8 @@ export default async function handler(req, res) {
 
     await resend.emails.send({
       from: 'CMS Updates <onboarding@resend.dev>',
-      to: 'YOUR-PERSONAL-EMAIL@GMAIL.COM', // <-- Confirm your destination email address is here
-      subject: 'Prod CMS Data: Record of Modification',
+      to: 'soni.redsoda@GMAIL.COM', // <-- Confirm your destination email address is here
+      subject: 'Prod CMS Data - Details of Change',
       html: emailHtml,
     });
 
