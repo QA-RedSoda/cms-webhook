@@ -93,7 +93,7 @@ export default async function handler(req, res) {
 
     // Send the email
     await resend.emails.send({
-      from: 'CMS Updates <onboarding@resend.dev>',
+      from: 'Resend <onboarding@resend.dev>',
       to: 'soni.redsoda@GMAIL.COM', // <-- MUST BE YOUR EXACT RESEND ACCOUNT REGISTRATION EMAIL
       subject: 'Prod CMS Data: Record of Modification',
       html: emailHtml,
