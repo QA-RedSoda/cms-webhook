@@ -1,21 +1,31 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export default async function handler(req, res) {
+  // Prevent crash if opened casually in a web browser
   if (req.method !== 'POST') {
-    return res.status(405).send('Method Not Allowed');
+    return res.status(200).json({ 
+      success: false, 
+      message: "Your webhook is working! However, you must trigger it with a POST request from your CMS, not via a browser URL window." 
+    });
+  }
+
+  // Safety check to prevent crash if the API Key environment variable is missing
+  if (!process.env.RESEND_API_KEY) {
+    return res.status(500).json({ 
+      success: false, 
+      error: "Missing RESEND_API_KEY environment variable. Please add it to your Vercel Project Settings." 
+    });
   }
 
   try {
-    const body = req.body;
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const body = req.body || {};
     
-    // Core payload normalization targeting the root structure
+    // Core payload normalization targeting the root structure safely
     const payload = body.body || body;
     const entry = payload.entry || {};
     const media = payload.media || {};
 
-    // Extracting fields exactly matching your updated keys list
     const event = payload.event || 'undefined';
     const model = payload.model || 'undefined';
     const entryId = entry.id || 'undefined';
@@ -27,21 +37,17 @@ export default async function handler(req, res) {
     const updatedAt = entry.updatedAt || 'undefined';
     const publishedAt = entry.publishedAt || 'undefined';
     
-    // Media details mapping
     const mediaName = media.name || 'undefined';
     const mediaUrl = media.url || 'undefined';
     const mediaCreatedAt = media.createdAt || 'undefined';
     const mediaUpdatedAt = media.updatedAt || 'undefined';
 
-    // Combining multiple optional value paths safely
     const entryValue = entry.value || 'undefined';
     const entryContent = entry.content || 'undefined';
     const combinedContent = `${entryValue}, ${entryContent}`;
     
-    // Components collection tracking
     const components = entry.Components || [];
 
-    // Loop dynamically through any payload array items on separate rows
     const formattedComponents = components.map((item, index) => {
       const fields = Object.entries(item)
         .map(([key, value]) => `<strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value) : value}<br>`)
@@ -51,7 +57,6 @@ export default async function handler(req, res) {
               </li>`;
     }).join('');
 
-    // Fixed template compilation with validated, legal HTML tags
     const emailHtml = `
       <!DOCTYPE html>
       <html>
@@ -86,15 +91,21 @@ export default async function handler(req, res) {
       </html>
     `;
 
+    // Send the email
     await resend.emails.send({
       from: 'CMS Updates <onboarding@resend.dev>',
-      to: 'soni.redsoda@GMAIL.COM', // <-- Confirm your destination email address is here
-      subject: 'Prod CMS Data - Details of Change',
+      to: 'soni.redsoda@GMAIL.COM', // <-- MUST BE YOUR EXACT RESEND ACCOUNT REGISTRATION EMAIL
+      subject: 'Prod CMS Data: Record of Modification',
       html: emailHtml,
     });
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, message: "Email sent successfully!" });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    // This catches the email runtime error cleanly instead of crashing the serverless instance
+    return res.status(200).json({ 
+      success: false, 
+      error: "The email transmission failed.",
+      details: error.message 
+    });
   }
 }
